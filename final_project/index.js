@@ -16,14 +16,14 @@ if(req.body.authorization){
     let token = req.body.authorization["accesstoken"];
     jwt.verify(token, "access",(err, user)=>{
         if(err){
-            res.status(402).send("User not authenticated.");
+            res.status(402).json("User not authenticated.");
         }else{
             req.user = user;
             next();
         }
     })
 }else{
-    res.status(403)send("User not logged In!")
+    res.status(403).json("User not logged In!")
 }
 });
  

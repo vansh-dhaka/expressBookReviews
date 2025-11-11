@@ -24,20 +24,40 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  res.send(JSON.stringify(books, null, 3))
-  return res.status(200).send(JSON.stringify(books, null, 3));
-});
+public_users.get('/', (req, res) => {
+    new Promise((resolve, reject) => {
+      if (books) {
+        resolve(books);
+      } else {
+        reject("No data found.");
+      }
+    })
+    .then((bookList) => {
+      res.status(200).send(JSON.stringify(bookList, null, 4));
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err });
+    });
+  });
+  
 
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  let isbn = req.params.isbn;
-  let data = books[isbn];
-  if(data){
-    return res.status(200).json(data);
-  }
-  return res.status(400).json({message: "No data found."});
- });
+// Get book details based on ISBN using async/await
+public_users.get('/isbn/:isbn',async (req, res) => {
+    try{
+        let isbn = req.params.isbn
+        const getData = (isbn) => {
+            return new Promise((resolve, reject)=>{
+                let data = books[isbn]
+                if(data) resolve(data);
+                else reject("No data found")
+            })
+        }
+        const bookData = await getData(isbn)
+        res.status(200).json(bookData)
+    }catch(err){
+        res.status(404).json({error: err})
+    }
+});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
